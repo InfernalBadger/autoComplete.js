@@ -10,7 +10,38 @@
 (function($) {
 
 	"use strict";
+	
+	// setup Array filter
+	if (!Array.prototype.filter)
+	{
+	  Array.prototype.filter = function(fun /*, thisp */)
+	  {
+		"use strict";
 
+		if (this == null)
+		  throw new TypeError();
+
+		var t = Object(this);
+		var len = t.length >>> 0;
+		if (typeof fun != "function")
+		  throw new TypeError();
+
+		var res = [];
+		var thisp = arguments[1];
+		for (var i = 0; i < len; i++)
+		{
+		  if (i in t)
+		  {
+			var val = t[i]; // in case fun mutates this
+			if (fun.call(thisp, val, i, t))
+			  res.push(val);
+		  }
+		}
+
+		return res;
+	  };
+	}
+	
 	var defaults = {
 		target: $(),
 		source: null,
@@ -100,7 +131,7 @@
 	methods = {
 		init: function(options) {
 			this.jqmData("autocomplete", $.extend({}, defaults, options));
-			return this.unbind("input.autocomplete").bind("input.autocomplete", handleInput);
+			return this.unbind("keyup.autocomplete").bind("keyup.autocomplete", handleInput);
 		},
 		// Allow dynamic update of source and link
 		update: function(options) {
